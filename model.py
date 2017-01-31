@@ -25,6 +25,14 @@ class User(db.Model):
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
+    u_rating = db.relationship('Rating', backref='users')
+
+
+    def __repr__(self):
+        """ Provide helpful representation when printed."""
+
+        return "<User user_id=%s email=%s>" % (self.user_id, self.email)
+
 
 class Movie(db.Model):
     """Movie of ratings website."""
@@ -33,8 +41,15 @@ class Movie(db.Model):
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
-    released_at = db.Column(db.DateTime, nullable=False)
+    released_at = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(200), nullable=False)
+
+    m_rating = db.relationship('Rating', backref='movies')
+
+    def __repr__(self):
+        """ Provide helpful representation when printed."""
+
+        return "<Movie movie_id=%s title=%s>" % (self.movie_id, self.title)
 
 
 class Rating(db.Model):
@@ -46,6 +61,8 @@ class Rating(db.Model):
     movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     score = db.Column(db.Integer, nullable=False)
+
+
 
 ##############################################################################
 # Helper functions
