@@ -25,7 +25,7 @@ class User(db.Model):
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
-    u_rating = db.relationship('Rating', backref='users')
+    # u_rating = db.relationship('Rating', backref='users')
 
 
     def __repr__(self):
@@ -44,7 +44,7 @@ class Movie(db.Model):
     released_at = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(200), nullable=False)
 
-    m_rating = db.relationship('Rating', backref='movies')
+    # m_rating = db.relationship('Rating', backref='movies')
 
     def __repr__(self):
         """ Provide helpful representation when printed."""
@@ -62,6 +62,23 @@ class Rating(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     score = db.Column(db.Integer, nullable=False)
 
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        s = "<Rating rating_id=%s movie_id=%s user_id=%s score=%s>"
+        return s % (self.rating_id, self.movie_id, self.user_id,
+                    self.score)
+
+
+    # Define relationship to user
+    user = db.relationship("User",
+                           backref=db.backref("ratings",
+                                              order_by=rating_id))
+
+    # Define relationship to movie
+    movie = db.relationship("Movie",
+                            backref=db.backref("ratings",
+                                               order_by=rating_id))
 
 
 ##############################################################################
