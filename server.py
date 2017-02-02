@@ -62,7 +62,7 @@ def login_page():
 
 @app.route('/register_form', methods=["POST"])
 def register():
-    """Verifies that user login exists."""
+    """Sends user to registration page."""
 
     email = request.form.get('email')
     password = request.form.get('password')
@@ -124,8 +124,25 @@ def movie_list():
     """Lists of movies"""
 
 
-    movies = Movie.query.all()
-    return render_template("user_list.html", users=users)
+    movies = Movie.query.order_by(Movie.title)
+
+
+
+    return render_template("movie_list.html", movies=movies)
+
+@app.route('/movie_detail/<movie_id>')
+def movie_detail(movie_id):
+    """User detail page"""
+
+    query_movie = Movie.query.filter_by(movie_id=movie_id).first()
+    title = query_movie.title
+    # user_id = movie_id.ratings.user_id
+    ratings = query_movie.ratings
+
+    
+
+
+    return render_template("movie_detail.html", title=title, ratings=ratings)
 
 
 

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h2>Movie Title: {{ title }} </h2>
+    {% if 'user' in session %}
+      <p>Your rating: {{ ratings.{{session['user']}}.score }}</p>
+    {% endif %}
+    <p>User Id (Movie Rating):</p>
+
+    <p>User Id (Movie Rating):</p>
+
+    <ul>
+      {% for rating in ratings %}
+          <li>
+              <a href="/user_detail/{{ rating.user_id }}">
+                {{ rating.user_id }}</a> ({{ rating.score }})
+          </li>
+      {% endfor %}
+    </ul>
+
+{% endblock %}
