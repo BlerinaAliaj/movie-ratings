@@ -21,6 +21,7 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
+
     a = jsonify([1,3])
     # return a
     return render_template("homepage.html")
@@ -31,6 +32,19 @@ def user_list():
 
     users = User.query.all()
     return render_template("user_list.html", users=users)
+
+
+@app.route('/user_detail/<user_id>')
+def user_detail(user_id):
+    """User detail page"""
+
+    query_user = User.query.filter_by(user_id=user_id).first()
+
+    age = query_user.age
+    zipcode = query_user.zipcode
+    ratings = query_user.ratings
+
+    return render_template("user_detail.html", user_id=user_id, age=age, zipcode=zipcode, ratings=ratings)
 
 @app.route('/register', methods=["GET"])
 def register_page():
@@ -43,7 +57,7 @@ def register_page():
 def login_page():
     """Page that asks users for login information"""
 
-    return render_template("login_page.html", error="")
+    return render_template("login_page.html")
 
 
 @app.route('/register_form', methods=["POST"])
@@ -69,32 +83,49 @@ def register():
 def verify_login():
     """Verifies that user login exists."""
 
+    if "user" not in session:
+        session["user"] = {}
+
     email = request.form.get('email')
     password = request.form.get('password')
 
-    query_user = User.query.filter_by(email=email).one()
+    query_user = User.query.filter_by(email=email).first()
 
     if query_user:
         user_pass = query_user.password
 
         if password == user_pass:
+            # We add user id and password to sessions user dictionary
+            session["user"] = query_user.user_id
+            user_id = query_user.user_id
             flash('You have successfully logged in.')
-            return redirect('/')
+            return redirect('/user_detail/' + str(user_id))
 
         else:
-            error = "Your username and password are not correct."
-            return render_template("login_page.html", error=error)
+            flash("Your username and password are not correct.")
+            return render_template("login_page.html")
 
-
-##################### FIX THIS!!!
     else:
         flash("Sorry, that username doesn't exist. Please register a new account.")
-        return render_template("login_page.html", error=error)
+        return redirect("/register")
 
 
-        # return redirect("/login", error=error)
-    # except ValueError:
-    #     ('Your username and password combination is not correct.')
+@app.route('/logout')
+def logout():
+    """Logs out user"""
+
+    del session["user"]
+    flash("You have been successfully logged out.")
+
+    return redirect('/')
+
+@app.route('/movies')
+def movie_list():
+    """Lists of movies"""
+
+
+    movies = Movie.query.all()
+    return render_template("user_list.html", users=users)
 
 
 
