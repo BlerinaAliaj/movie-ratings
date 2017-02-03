@@ -2,10 +2,65 @@
 {% block content %}
 
     <h2>Movie Title: {{ title }} </h2>
-    {% if 'user' in session %}
-      <p>Your rating: {{ ratings.{{session['user']}}.score }}</p>
-    {% endif %}
-    <p>User Id (Movie Rating):</p>
+
+      {% if 'user' in session %}
+        {% if user_rating %}
+
+        {% set rating = user_rating.score %}
+
+          <p>Your rating: <span id="user_rating">{{ rating }}</span></p>
+
+        {% else %}
+
+        {% set rating = None %}
+
+          <p id="no_rating">You have not rated this movie yet.</p>
+          <p id ="yay_rating" style="display:none">Your rating: <span id="user_rating">{{ rating }}</span></p>
+        
+        {% endif %}
+                         
+      {% endif %}
+
+        <form class="rating_form" method="Post" action="/rate_movie" >
+
+
+         Rate this movie: 
+          <input type="radio" class = 'arr' name ='rating' value='1'>1
+          <input type="radio" class = 'arr' name ='rating' value='2'>2
+          <input type="radio" class = 'arr' name ='rating' value='3'>3
+          <input type="radio" class = 'arr' name ='rating' value='4'>4
+          <input type="radio" class = 'arr' name ='rating' value='5'>5
+
+        </form>
+
+        <script src="https://code.jquery.com/jquery.js"></script>
+
+        <script type="text/javascript">
+
+
+        function liveUpdate(evt) {
+
+          $("#no_rating").attr("style", "display:none")
+          $("#yay_rating").removeAttr("style")
+          $("#user_rating").html(evt);
+        }
+
+
+        function updateRating(evt) {
+
+          var rating = $(".arr:checked").val();
+          var movie_id = $("#movie-id").text();
+          var my_rating_value = {"my_rating" : rating,
+                                "movie_id" : {{ movie_id }} }
+
+          $.post("/rate_movie", my_rating_value, liveUpdate)
+
+        }
+
+        $(".rating_form").on("click", updateRating )
+
+        </script>
+
 
     <p>User Id (Movie Rating):</p>
 

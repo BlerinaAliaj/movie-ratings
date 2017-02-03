@@ -119,16 +119,15 @@ def logout():
 
     return redirect('/')
 
+
 @app.route('/movies')
 def movie_list():
     """Lists of movies"""
 
-
     movies = Movie.query.order_by(Movie.title)
 
-
-
     return render_template("movie_list.html", movies=movies)
+
 
 @app.route('/movie_detail/<movie_id>')
 def movie_detail(movie_id):
@@ -136,13 +135,37 @@ def movie_detail(movie_id):
 
     query_movie = Movie.query.filter_by(movie_id=movie_id).first()
     title = query_movie.title
-    # user_id = movie_id.ratings.user_id
     ratings = query_movie.ratings
 
-    
+    if 'user' in session:
+        user_id = session['user']
+        user_rating = Rating.query.filter( (Rating.movie_id == movie_id) & (Rating.user_id == user_id) ).first()
+
+    return render_template("movie_detail.html", title=title, ratings=ratings, user_rating=user_rating, movie_id=movie_id)
 
 
-    return render_template("movie_detail.html", title=title, ratings=ratings)
+@app.route('/rate_movie', methods=["POST"])
+def rate_movie():
+
+    my_rating = request.form.get("my_rating")
+    movie_id = request.form.get("movie_id")
+    user_id = session['user']
+
+    query_rating = Rating.query.filter((Rating.user_id == user_id) & (Rating.movie_id == movie_id)).first()
+
+    if query_rating:
+        query_rating.score = my_rating
+
+    else:
+        new_rating = Rating(movie_id=movie_id,
+                        user_id=user_id,
+                        score=my_rating)
+        db.session.add(new_rating)
+
+    db.session.commit()
+    # else update the user/movie rating
+
+    return my_rating
 
 
 
@@ -157,7 +180,6 @@ if __name__ == "__main__":
 
     # Use the DebugToolbar
     DebugToolbarExtension(app)
-
 
 
     app.run(port=5000, host='0.0.0.0')
